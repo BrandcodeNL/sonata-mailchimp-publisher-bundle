@@ -1,0 +1,3 @@
+brandcode_nl_sonata_mailchimp_publisher_homepage:
+    path:     /
+    defaults: { _controller: BrandcodeNLSonataMailchimpPublisherBundle:Default:index }

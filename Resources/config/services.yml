@@ -1,0 +1,22 @@
+parameters:
+    brandcode_nl_sonata_mailchimp_publisher.list_provider_class: BrandcodeNL\SonataMailchimpPublisherBundle\Provider\ListProvider 
+
+services:
+  brandcode_nl_sonata_mailchimp_publisher.mailchimp_master:
+    class: DrewM\MailChimp\MailChimp
+    arguments: ['%brandcode_nl_sonata_mailchimp_publisher.api_key%']
+    public: false 
+
+  brandcode_nl_sonata_mailchimp_publisher.list_provider:
+    class: '%brandcode_nl_sonata_mailchimp_publisher.list_provider_class%'  
+    public: false 
+
+  brandcode_nl_sonata_mailchimp_publisher.channel:
+    class: BrandcodeNL\SonataMailchimpPublisherBundle\Channel\MailchimpChannel
+    arguments: 
+      - '@brandcode_nl_sonata_mailchimp_publisher.mailchimp_master'
+      - '@brandcode_nl_sonata_mailchimp_publisher.list_provider'
+    tags:
+        - { name: sonata_publisher.channel } 
+    
+        
