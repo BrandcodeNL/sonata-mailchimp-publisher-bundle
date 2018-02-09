@@ -3,6 +3,7 @@
 namespace BrandcodeNL\SonataMailchimpPublisherBundle\Channel;
 
 use DrewM\MailChimp\MailChimp;
+use BrandcodeNL\SonataPublisherBundle\Entity\PublishResponce;
 use BrandcodeNL\SonataPublisherBundle\Channel\ChannelInterface;
 use BrandcodeNL\SonataMailchimpPublisherBundle\Model\ListInterface;
 use BrandcodeNL\SonataMailchimpPublisherBundle\Formatter\FormatterInterface;
@@ -73,7 +74,7 @@ class MailchimpChannel implements ChannelInterface
             }
         }     
         
-        return $results;
+        return $this->generateSuccessResponce($results);
         
     }
 
@@ -88,7 +89,7 @@ class MailchimpChannel implements ChannelInterface
         }
 
         $this->settingsProvider->setList($list);
-        
+       
         $result = $this->mailchimp->post("campaigns",
             array(
                 "recipients" => array(
@@ -146,5 +147,16 @@ class MailchimpChannel implements ChannelInterface
     {
         $this->mailchimp = new Mailchimp($apiKey);
     }
+
+    public function generateSuccessResponce($result)
+    {
+        
+        return  new PublishResponce("success", count($result), $result, strval($this));
+
+    }
     
+    public function __toString()
+    {
+        return "sonata.publish.mailchimp";
+    }
 }
