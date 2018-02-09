@@ -17,6 +17,7 @@ class ListProvider implements ListProviderInterface
     {
         $list = new MailchimpList();
         $list->setId('6cf7ae4e71');
+        $list->setApiKey();
         return array($list);
     }
 

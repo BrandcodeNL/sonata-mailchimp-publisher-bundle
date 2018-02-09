@@ -24,7 +24,19 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()                
                 ->scalarNode('api_key')
-                  
+                    ->isRequired()
+                ->end()
+                ->arrayNode('lists')
+                    ->useAttributeAsKey('listId')
+                    ->prototype('array')
+                        ->children()
+                            ->scalarNode('fromName')->end()
+                            ->scalarNode('fromEmail')->end()
+                            ->scalarNode('template')->end()
+                            ->scalarNode('format')->end()
+                            ->scalarNode('api_key')->end()
+                        ->end()
+                    ->end() 
                 ->end()
             ->end();
 

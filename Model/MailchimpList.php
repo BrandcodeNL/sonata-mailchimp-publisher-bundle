@@ -6,9 +6,10 @@ class MailchimpList implements ListInterface
 {
     
     private $listId;
+    private $apiKey;
 
     /**
-     * Get the Mailchimp compatible list id
+     * {@inheritdoc}
      */
     public function getListId()
     {
@@ -21,6 +22,22 @@ class MailchimpList implements ListInterface
     public function setListId($listId)
     {
         $this->listId = $listId;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getApiKey()
+    {
+        return $this->apiKey;
+    }
+
+    /**
+     * Set the optional api key
+     */
+    public function setApiKey($apiKey)
+    {
+        $this->apiKey = $apiKey;
     }
 
 }

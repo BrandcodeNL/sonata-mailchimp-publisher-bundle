@@ -1,6 +1,8 @@
 parameters:
     brandcode_nl_sonata_mailchimp_publisher.list_provider_class: BrandcodeNL\SonataMailchimpPublisherBundle\Provider\ListProvider 
-
+    brandcode_nl_sonata_mailchimp_publisher.settings_provider_class: BrandcodeNL\SonataMailchimpPublisherBundle\Provider\SettingsProvider
+    brandcode_nl_sonata_mailchimp_publisher.twig_formatter_class: BrandcodeNL\SonataMailchimpPublisherBundle\Formatter\TwigFormatter
+     
 services:
   brandcode_nl_sonata_mailchimp_publisher.mailchimp_master:
     class: DrewM\MailChimp\MailChimp
@@ -11,12 +13,29 @@ services:
     class: '%brandcode_nl_sonata_mailchimp_publisher.list_provider_class%'  
     public: false 
 
+  brandcode_nl_sonata_mailchimp_publisher.twig_formatter:
+    class: '%brandcode_nl_sonata_mailchimp_publisher.twig_formatter_class%'  
+    arguments:
+      - '@twig'
+      - '%brandcode_nl_sonata_mailchimp_publisher.lists%'
+    public: false 
+
+  brandcode_nl_sonata_mailchimp_publisher.settings_provider:
+    class: '%brandcode_nl_sonata_mailchimp_publisher.settings_provider_class%'  
+    arguments:
+      - '%brandcode_nl_sonata_mailchimp_publisher.lists%'
+    public: false 
+
   brandcode_nl_sonata_mailchimp_publisher.channel:
     class: BrandcodeNL\SonataMailchimpPublisherBundle\Channel\MailchimpChannel
     arguments: 
       - '@brandcode_nl_sonata_mailchimp_publisher.mailchimp_master'
       - '@brandcode_nl_sonata_mailchimp_publisher.list_provider'
+      - '@brandcode_nl_sonata_mailchimp_publisher.settings_provider'
+      - '@brandcode_nl_sonata_mailchimp_publisher.twig_formatter'
+
     tags:
         - { name: sonata_publisher.channel } 
+    public: false
     
         
