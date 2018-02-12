@@ -1,0 +1,43 @@
+{
+    "name": "brandcodenl/sonata-mailchimp-publisher-bundle",
+    "type": "symfony-bundle",
+    "description": "Publish entities from sonata admin list view to Mailchimp campaigns",
+    "keywords": ["sonata", "publish", "mailchimp"],
+    "homepage": "https://aveq.nl",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jeroen de Kok",
+            "email": "jeroen.dekok@aveq.nl",
+            "homepage": "https://aveq.nl"
+        }      
+    ],
+    "require": {      
+        "brandcodenl/sonata-publisher-bundle": "^1.0"   
+    },
+    "require-dev": {
+      
+    },
+    "suggest": {
+         
+    },
+    "conflict": {
+     
+    },
+    "autoload": {
+        "psr-4": {
+            "BrandcodeNL\\SonataMailchimpPublisherBundle\\": ""
+        },
+        "exclude-from-classmap": [
+            "/Tests/"
+        ]
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.x-dev"
+        }
+    }
+}
