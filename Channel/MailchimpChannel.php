@@ -1,5 +1,8 @@
 <?php
-
+/*
+ * This file is part of the BrandcodeNL SonataMailchimpPublisherBundle.
+ * (c) BrandcodeNL
+ */
 namespace BrandcodeNL\SonataMailchimpPublisherBundle\Channel;
 
 use DrewM\MailChimp\MailChimp;
@@ -10,6 +13,9 @@ use BrandcodeNL\SonataMailchimpPublisherBundle\Formatter\FormatterInterface;
 use BrandcodeNL\SonataMailchimpPublisherBundle\Provider\ListProviderInterface;
 use BrandcodeNL\SonataMailchimpPublisherBundle\Provider\SettingsProviderInterface;
 
+/**
+ * @author Jeroen de Kok <jeroen.dekok@aveq.nl>
+ */
 class MailchimpChannel implements ChannelInterface
 {
         

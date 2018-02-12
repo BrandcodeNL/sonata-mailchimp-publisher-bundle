@@ -1,7 +1,13 @@
 <?php
-
+/*
+ * This file is part of the BrandcodeNL SonataMailchimpPublisherBundle.
+ * (c) BrandcodeNL
+ */
 namespace BrandcodeNL\SonataMailchimpPublisherBundle\Model;
 
+/**
+ * @author Jeroen de Kok <jeroen.dekok@aveq.nl>
+ */
 interface ListInterface
 {
     

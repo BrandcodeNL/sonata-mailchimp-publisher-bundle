@@ -1,5 +1,8 @@
 <?php
-
+/*
+ * This file is part of the BrandcodeNL SonataMailchimpPublisherBundle.
+ * (c) BrandcodeNL
+ */
 namespace BrandcodeNL\SonataMailchimpPublisherBundle\DependencyInjection;
 
 use Symfony\Component\Config\FileLocator;
@@ -9,9 +12,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 /**
- * This is the class that loads and manages your bundle configuration.
- *
- * @link http://symfony.com/doc/current/cookbook/bundles/extension.html
+ * @author Jeroen de Kok <jeroen.dekok@aveq.nl>
+ * This is the class that loads and manages your bundle configuration. * 
  */
 class BrandcodeNLSonataMailchimpPublisherExtension extends Extension
 {
