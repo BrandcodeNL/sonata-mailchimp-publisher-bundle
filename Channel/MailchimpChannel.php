@@ -58,7 +58,7 @@ class MailchimpChannel implements ChannelInterface
     /**
      * Publish object to Mailchimp
      * @param $object
-     * TODO List can be on diffrent API key
+     * TODO better error handling
      */
     public function publish($object)
     {
@@ -124,6 +124,8 @@ class MailchimpChannel implements ChannelInterface
 
     /**
      * Update an existing campaign and add content
+     * TODO dont hardcode the section ID Here ? 
+     * TODO Support multiple sections ? 
      */
     protected function insertContentInCampaign($campaignId, $list, $object)
     {
@@ -155,10 +157,8 @@ class MailchimpChannel implements ChannelInterface
     }
 
     public function generateSuccessResponce($result)
-    {
-        
+    {        
         return  new PublishResponce("success", count($result), $result, strval($this));
-
     }
     
     public function __toString()
