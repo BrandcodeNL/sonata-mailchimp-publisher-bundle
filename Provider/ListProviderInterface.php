@@ -5,6 +5,8 @@
  */
 namespace BrandcodeNL\SonataMailchimpPublisherBundle\Provider;
 
+use BrandcodeNL\SonataMailchimpPublisherBundle\Model\ListInterface;
+
 /**
  * @author Jeroen de Kok <jeroen.dekok@aveq.nl>
  */
@@ -17,4 +19,10 @@ interface ListProviderInterface
      */
     public function getLists($object);
 
+    /**
+     * Return the segmentation for the given list
+     * @param ListInterface $list 
+     * @param $object object that gets published 
+     */
+    public function getSegment(ListInterface $list, $object);
 }

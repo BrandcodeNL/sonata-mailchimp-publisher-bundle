@@ -6,6 +6,7 @@
 namespace BrandcodeNL\SonataMailchimpPublisherBundle\Provider;
 
 use BrandcodeNL\SonataMailchimpPublisherBundle\Model\MailchimpList;
+use BrandcodeNL\SonataMailchimpPublisherBundle\Model\ListInterface;
 
 /**
  * @author Jeroen de Kok <jeroen.dekok@aveq.nl>
@@ -25,6 +26,14 @@ class ListProvider implements ListProviderInterface
         $list->setId('???');
         $list->setApiKey();
         return array($list);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSegment(ListInterface $list, $object)
+    {
+        return null;
     }
 
 }

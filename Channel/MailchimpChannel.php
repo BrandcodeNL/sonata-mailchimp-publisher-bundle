@@ -71,7 +71,7 @@ class MailchimpChannel implements ChannelInterface
             {
                 $this->reinitializeMailchimp($list->getApiKey());
             }
-            $campaign = $this->createCampaign($list);
+            $campaign = $this->createCampaign($list, $object);
             $campaignId = $campaign['id'] ? $campaign['id'] : null;
 
             if($campaignId)
@@ -87,7 +87,7 @@ class MailchimpChannel implements ChannelInterface
     /**
      * Create a new campaign
      */
-    protected function createCampaign($list)
+    protected function createCampaign($list, $object)
     {
         if(!$list instanceof ListInterface)
         {
@@ -95,12 +95,21 @@ class MailchimpChannel implements ChannelInterface
         }
 
         $this->settingsProvider->setList($list);
+        
+        $recipients = array(
+            'list_id' => $list->getListId(),
+        );
+
+        //retrieve posible segment from list provider
+        $segment = $this->listProvider->getSegment($list, $object);
+        if(!empty($segment))
+        {
+            $recipients['segment_opts'] = $segment;
+        }
        
         $result = $this->mailchimp->post("campaigns",
             array(
-                "recipients" => array(
-                    'list_id' => $list->getListId()
-                ),
+                "recipients" => $recipients,                
                 'type' => 'regular',
                 'settings' =>
                     array_merge(
@@ -111,7 +120,7 @@ class MailchimpChannel implements ChannelInterface
                         $this->settingsProvider->getFrom()
                     )   
             )
-        );
+        );       
 
         if(!empty($result['errors']))
         {
