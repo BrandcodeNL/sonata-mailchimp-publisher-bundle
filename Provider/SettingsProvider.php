@@ -71,5 +71,17 @@ class SettingsProvider implements SettingsProviderInterface
     {
         return $this->configLists[$this->list->getListId()]['template'];
     }
+    
+    /**
+     * {@inheritdoc}
+     * Return null so the campaign is only created
+     * TODO check if the campaign is allowed to be send from the config then return current dateTime
+     */
+    public function getScheduleDateTime()
+    {
+        return null;
+    }
+       
+    
 
 }

@@ -75,8 +75,14 @@ class MailchimpChannel implements ChannelInterface
             $campaignId = $campaign['id'] ? $campaign['id'] : null;
 
             if($campaignId)
-            {
-                $results[] = array_merge($campaign, $this->insertContentInCampaign($campaignId, $list, $object));
+            {               
+                $campaignResult = $this->insertContentInCampaign($campaignId, $list, $object);
+                if(!isset($campaignResult['errors']) &&  $this->settingsProvider->getScheduleDateTime() != null)
+                {
+                    //schedule campaign if date is provided by the settingsProvider
+                    $this->scheduleCampaign($campaignId, $this->settingsProvider->getScheduleDateTime());
+                }
+                $results[] = array_merge($campaign, $campaignResult);
             }
         }     
         
@@ -158,6 +164,21 @@ class MailchimpChannel implements ChannelInterface
 
         return $result;
   
+    }
+
+    /**
+     * Schedule a campaign
+     * TODO error handling ? 
+     */
+    protected function scheduleCampaign($campaignId, $datetime)
+    {       
+        //convert to UTC
+        $datetime->setTimezone(new \DateTimeZone("UTC"));       
+        $result = $this->mailchimp->post("campaigns/{$campaignId}/actions/schedule",
+            array(
+                "schedule_time" => $datetime->format('Y-m-d H:i:s e')
+            )
+        );
     }
 
     private function reinitializeMailchimp($apiKey)

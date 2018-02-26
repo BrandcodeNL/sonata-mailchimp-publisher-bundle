@@ -37,4 +37,10 @@ interface SettingsProviderInterface
      * Get the template ID for this campaign
      */
     public function getTemplateId();
+
+    /**
+     * Get the campaign schedule datetime
+     */
+     public function getScheduleDateTime();
+     
 }
