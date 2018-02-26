@@ -2,6 +2,7 @@
 Publish entities from sonata admin list view to Mailchimp campaigns
 
 Sample config.yml
+```
 brandcode_nl_sonata_mailchimp_publisher:
     api_key: apiKey
       lists:
