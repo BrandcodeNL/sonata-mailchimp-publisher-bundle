@@ -72,7 +72,7 @@ class MailchimpChannel implements ChannelInterface
                 $this->reinitializeMailchimp($list->getApiKey());
             }
             $campaign = $this->createCampaign($list, $object);
-            $campaignId = $campaign['id'] ? $campaign['id'] : null;
+            $campaignId = isset($campaign['id']) ? $campaign['id'] : null;
 
             if($campaignId)
             {               
@@ -83,6 +83,10 @@ class MailchimpChannel implements ChannelInterface
                     $this->scheduleCampaign($campaignId, $this->settingsProvider->getScheduleDateTime());
                 }
                 $results[] = array_merge($campaign, $campaignResult);
+            }
+            else
+            {
+                $results = $campaign;
             }
         }     
         
@@ -126,14 +130,8 @@ class MailchimpChannel implements ChannelInterface
                         $this->settingsProvider->getFrom()
                     )   
             )
-        );       
-
-        if(!empty($result['errors']))
-        {
-            //handle errors ? 
-            Throw new \Exception(json_encode($result['errors']));
-        }
-
+        );   
+        
         return $result;
     }
 
@@ -188,6 +186,12 @@ class MailchimpChannel implements ChannelInterface
 
     public function generateSuccessResponce($result)
     {        
+        if(!empty($result['errors']))
+        {
+            return  new PublishResponce("error", count($result), $result['errors'], strval($this));
+            
+        }
+
         return  new PublishResponce("success", count($result), $result, strval($this));
     }
     
