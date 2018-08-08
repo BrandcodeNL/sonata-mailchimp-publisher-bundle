@@ -20,9 +20,9 @@ class BatchSettingsProvider implements BatchSettingsProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function setObject($object)
+    public function setObjects($objects)
     {
-        $this->object = $object;
+        $this->objects = $objects;
     }
 
 
@@ -43,6 +43,11 @@ class BatchSettingsProvider implements BatchSettingsProviderInterface
     public function getFrom(ListInterface $list)
     {
 
+    }
+
+    public function __toString()
+    {
+ 
     }
 
 }
