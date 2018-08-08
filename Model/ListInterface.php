@@ -21,4 +21,6 @@ interface ListInterface
      */
     public function getApiKey();
 
+    public function __toString();
+
 }

@@ -13,5 +13,5 @@ use BrandcodeNL\SonataMailchimpPublisherBundle\Model\ListInterface;
 interface FormatterInterface
 {
     
-    public function generateHTML($object, ListInterface $list);
+    public function generateHTML($objects, ListInterface $list);
 }

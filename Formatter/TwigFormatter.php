@@ -27,13 +27,13 @@ class TwigFormatter implements FormatterInterface
     /**
      * {@inheritdoc}
      */
-    public function generateHTML($object, ListInterface $list)
+    public function generateHTML($objects, ListInterface $list)
     {
         //find correct format template and generate the HTML
         $template = $this->configLists[$list->getListId()]['format'];
-        $html = $this->twig->render($template, array('list' => $list, 'object' => $object));
+        $html = $this->twig->render($template, array('list' => $list, 'objects' => $objects));
 
         return $html;
-
     }
+    
 }

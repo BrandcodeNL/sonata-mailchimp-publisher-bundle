@@ -1,6 +1,8 @@
 parameters:
     brandcode_nl_sonata_mailchimp_publisher.list_provider_class: BrandcodeNL\SonataMailchimpPublisherBundle\Provider\ListProvider 
+    brandcode_nl_sonata_mailchimp_publisher.batch_list_provider_class: BrandcodeNL\SonataMailchimpPublisherBundle\Provider\BatchListProvider 
     brandcode_nl_sonata_mailchimp_publisher.settings_provider_class: BrandcodeNL\SonataMailchimpPublisherBundle\Provider\SettingsProvider
+    brandcode_nl_sonata_mailchimp_publisher.batch_settings_provider_class: BrandcodeNL\SonataMailchimpPublisherBundle\Provider\BatchSettingsProvider
     brandcode_nl_sonata_mailchimp_publisher.twig_formatter_class: BrandcodeNL\SonataMailchimpPublisherBundle\Formatter\TwigFormatter
      
 services:
@@ -11,6 +13,10 @@ services:
 
   brandcode_nl_sonata_mailchimp_publisher.list_provider:
     class: '%brandcode_nl_sonata_mailchimp_publisher.list_provider_class%'  
+    public: false 
+
+  brandcode_nl_sonata_mailchimp_publisher.batch_list_provider:
+    class: '%brandcode_nl_sonata_mailchimp_publisher.batch_list_provider_class%'  
     public: false 
 
   brandcode_nl_sonata_mailchimp_publisher.twig_formatter:
@@ -25,14 +31,21 @@ services:
     arguments:
       - '%brandcode_nl_sonata_mailchimp_publisher.lists%'
     public: false 
+  
+  brandcode_nl_sonata_mailchimp_publisher.batch_settings_provider:
+    class: '%brandcode_nl_sonata_mailchimp_publisher.batch_settings_provider_class%'    
+    public: false 
 
   brandcode_nl_sonata_mailchimp_publisher.channel:
     class: BrandcodeNL\SonataMailchimpPublisherBundle\Channel\MailchimpChannel
     arguments: 
       - '@brandcode_nl_sonata_mailchimp_publisher.mailchimp_master'
       - '@brandcode_nl_sonata_mailchimp_publisher.list_provider'
+      - '@brandcode_nl_sonata_mailchimp_publisher.batch_list_provider'  
       - '@brandcode_nl_sonata_mailchimp_publisher.settings_provider'
+      - '@brandcode_nl_sonata_mailchimp_publisher.batch_settings_provider'
       - '@brandcode_nl_sonata_mailchimp_publisher.twig_formatter'
+      - '@request_stack'  
 
     tags:
         - { name: sonata_publisher.channel } 

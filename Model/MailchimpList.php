@@ -46,4 +46,9 @@ class MailchimpList implements ListInterface
         $this->apiKey = $apiKey;
     }
 
+    public function __toString()
+    {
+        return $this->listId;
+    }
+
 }
