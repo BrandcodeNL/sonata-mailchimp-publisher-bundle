@@ -9,6 +9,7 @@ use DrewM\MailChimp\MailChimp;
 use BrandcodeNL\SonataPublisherBundle\Entity\PublishResponce;
 use BrandcodeNL\SonataPublisherBundle\Channel\ChannelInterface;
 use BrandcodeNL\SonataMailchimpPublisherBundle\Model\ListInterface;
+use BrandcodeNL\SonataPublisherBundle\Channel\BatchChannelInterface;
 use BrandcodeNL\SonataMailchimpPublisherBundle\Formatter\FormatterInterface;
 use BrandcodeNL\SonataMailchimpPublisherBundle\Provider\ListProviderInterface;
 use BrandcodeNL\SonataMailchimpPublisherBundle\Provider\SettingsProviderInterface;
@@ -16,7 +17,7 @@ use BrandcodeNL\SonataMailchimpPublisherBundle\Provider\SettingsProviderInterfac
 /**
  * @author Jeroen de Kok <jeroen.dekok@aveq.nl>
  */
-class MailchimpChannel implements ChannelInterface
+class MailchimpChannel implements ChannelInterface, BatchChannelInterface 
 {
         
     /**
@@ -54,6 +55,24 @@ class MailchimpChannel implements ChannelInterface
         $this->formatter = $formatter;
     }
 
+
+    /**
+     * Undocumented function
+     *
+     * @param [type] $objects
+     * @return void
+     */
+    public function batchPrepare($objects)
+    {
+
+        //use batch listProviders & batch SettingsProvider to give the user options to choose from.         
+        return array(
+            'template' => 'BrandcodeNLSonataMailchimpPublisherBundle:CRUD:batch_prepare.html.twig',
+            'parameters' => array(
+
+            )
+        );
+    }
 
     /**
      * Publish object to Mailchimp
