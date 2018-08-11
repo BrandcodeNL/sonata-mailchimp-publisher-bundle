@@ -4,6 +4,7 @@ parameters:
     brandcode_nl_sonata_mailchimp_publisher.settings_provider_class: BrandcodeNL\SonataMailchimpPublisherBundle\Provider\SettingsProvider
     brandcode_nl_sonata_mailchimp_publisher.batch_settings_provider_class: BrandcodeNL\SonataMailchimpPublisherBundle\Provider\BatchSettingsProvider
     brandcode_nl_sonata_mailchimp_publisher.twig_formatter_class: BrandcodeNL\SonataMailchimpPublisherBundle\Formatter\TwigFormatter
+    brandcode_nl_sonata_mailchimp_publisher.content_provider_class: BrandcodeNL\SonataMailchimpPublisherBundle\Provider\ContentProvider
      
 services:
   brandcode_nl_sonata_mailchimp_publisher.mailchimp_master:
@@ -35,6 +36,10 @@ services:
   brandcode_nl_sonata_mailchimp_publisher.batch_settings_provider:
     class: '%brandcode_nl_sonata_mailchimp_publisher.batch_settings_provider_class%'    
     public: false 
+  
+  brandcode_nl_sonata_mailchimp_publisher.content_provider:
+    class: '%brandcode_nl_sonata_mailchimp_publisher.content_provider_class%'    
+    public: false 
 
   brandcode_nl_sonata_mailchimp_publisher.channel:
     class: BrandcodeNL\SonataMailchimpPublisherBundle\Channel\MailchimpChannel
@@ -45,6 +50,7 @@ services:
       - '@brandcode_nl_sonata_mailchimp_publisher.settings_provider'
       - '@brandcode_nl_sonata_mailchimp_publisher.batch_settings_provider'
       - '@brandcode_nl_sonata_mailchimp_publisher.twig_formatter'
+      - '@brandcode_nl_sonata_mailchimp_publisher.content_provider'
       - '@request_stack'  
 
     tags:

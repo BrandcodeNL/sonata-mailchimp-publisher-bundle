@@ -13,6 +13,7 @@ use BrandcodeNL\SonataMailchimpPublisherBundle\Model\ListInterface;
 use BrandcodeNL\SonataPublisherBundle\Channel\BatchChannelInterface;
 use BrandcodeNL\SonataMailchimpPublisherBundle\Formatter\FormatterInterface;
 use BrandcodeNL\SonataMailchimpPublisherBundle\Provider\ListProviderInterface;
+use BrandcodeNL\SonataMailchimpPublisherBundle\Provider\ContentProviderInterface;
 use BrandcodeNL\SonataMailchimpPublisherBundle\Provider\SettingsProviderInterface;
 use BrandcodeNL\SonataMailchimpPublisherBundle\Provider\BatchListProviderInterface;
 use BrandcodeNL\SonataMailchimpPublisherBundle\Provider\BatchSettingsProviderInterface;
@@ -61,6 +62,8 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
 
     protected $requestStack;
 
+    protected $contentProvider;
+
     /**
      * @param MailChimp $mailchimp
      */
@@ -71,6 +74,7 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
             SettingsProviderInterface $settingsProvider,
             BatchSettingsProviderInterface $batchSettingsProvider,           
             FormatterInterface $formatter,
+            ContentProviderInterface $contentProvider,
             RequestStack $requestStack
     ) {
         $this->mailchimp = $mailchimp;
@@ -79,6 +83,7 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
         $this->settingsProvider = $settingsProvider;
         $this->batchSettingsProvider = $batchSettingsProvider;
         $this->formatter = $formatter;
+        $this->contentProvider = $contentProvider;
         $this->requestStack = $requestStack;
     }
 
@@ -108,6 +113,12 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
      */
     public function publish($object)
     {
+        dump(
+            $this->mailchimp->get(
+       
+                "/templates/196997/default-content"               
+            )
+        );
         $this->settingsProvider->setObject($object);
         $results = array();
         //Loop through all the lists provided by the list provider
@@ -227,15 +238,15 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
      */
     protected function insertContentInCampaign($campaignId, $list, $objects, $templateId)
     {
+        $content = $this->contentProvider->provideContent($list, $objects);
+    
         //proceed with adding content
         $result = $this->mailchimp->put(
              "campaigns/{$campaignId}/content",
             array(
                 "template" => array(
                     'id' => $templateId,
-                    'sections' => array(
-                        'content' => $this->formatter->generateHTML($objects, $list)
-                    )
+                    'sections' => $content  
                 )
             )
         );
