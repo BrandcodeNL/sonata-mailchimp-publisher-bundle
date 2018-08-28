@@ -101,7 +101,7 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
             'template' => 'BrandcodeNLSonataMailchimpPublisherBundle:CRUD:batch_prepare.html.twig',
             'parameters' => array(
                 'lists' => $this->batchListProvider->getLists($objects),
-                'templates' => $this->batchSettingsProvider->getTemplates()
+                #'templates' => $this->batchSettingsProvider->getTemplates()
             )
         );
     }
@@ -112,13 +112,8 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
      * TODO better error handling
      */
     public function publish($object)
-    {
-        dump(
-            $this->mailchimp->get(
+    {   
        
-                "/templates/196997/default-content"               
-            )
-        );
         $this->settingsProvider->setObject($object);
         $results = array();
         //Loop through all the lists provided by the list provider
@@ -146,16 +141,19 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
 
     public function publishBatch($objects)
     {
+      
         $this->batchSettingsProvider->setObjects($objects); 
 
         $data = $this->requestStack->getCurrentRequest()->get('mailchimp');
         
-        $list = $this->batchListProvider->getListById($data['list']);
-        $templateId = $this->batchSettingsProvider->getTemplateIdById($data['template']);
+        $list = $this->batchListProvider->getListById($data['list']);        
 
         if (!empty($list->getApiKey())) {
             $this->reinitializeMailchimp($list->getApiKey());
         }
+
+        $this->settingsProvider->setList($list);
+        $templateId = $this->settingsProvider->getTemplateId();
          
         $recipients = array(
             'list_id' => $list->getListId(),
@@ -170,7 +168,7 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
         $campaign =  $this->createMailchimpCampaign($recipients, $data['subject'], $templateId, $from);
 
         $campaignId = isset($campaign['id']) ? $campaign['id'] : null;
-
+      
         if ($campaignId) {
             $campaignResult = $this->insertContentInCampaign($campaignId, $list, $objects, $templateId);
             
@@ -239,7 +237,7 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
     protected function insertContentInCampaign($campaignId, $list, $objects, $templateId)
     {
         $content = $this->contentProvider->provideContent($list, $objects);
-    
+       
         //proceed with adding content
         $result = $this->mailchimp->put(
              "campaigns/{$campaignId}/content",
@@ -250,7 +248,7 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
                 )
             )
         );
-
+        
         if (!empty($result['errors'])) {
             //handle errors ?
             throw new \Exception(json_encode($result['errors']));
