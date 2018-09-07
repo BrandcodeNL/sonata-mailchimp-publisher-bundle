@@ -216,11 +216,10 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
                         array(
                             'subject_line' => $subject,
                             'template_id' => $template,
+                            'preview_text' => $preview
                         ),
-                        $from
+                        $from                       
                     ),
-                'preview_text' => $preview
-                
             )
         );
         
