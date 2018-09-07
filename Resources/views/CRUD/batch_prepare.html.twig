@@ -23,11 +23,15 @@
 
 <div class="form-group">
     <label for="mailchimp[subject]">{{'batch.mailchimp.subject' |trans({}, 'BrandcodeNLSonataMailchimpPublisherBundle')}}</label>
-    <input type="text" class="form-control" id="mc_subject" name="mailchimp[subject]" >
+    <input type="text" class="form-control" id="mc_subject" name="mailchimp[subject]" required>
 </div>
 
 <div class="form-group">
+    <label for="mailchimp[preview]">{{'batch.mailchimp.preview' |trans({}, 'BrandcodeNLSonataMailchimpPublisherBundle') |raw}}</label>
+    <textarea type="text" class="form-control" id="mc_preview" name="mailchimp[preview]" maxlength="150"></textarea>
+</div>
+<!-- <div class="form-group">
     <label for="mailchimp[from]">{{'batch.mailchimp.from' |trans({}, 'BrandcodeNLSonataMailchimpPublisherBundle')}}</label>
     <input type="text" class="form-control" id="mc_from" name="mailchimp[from]" >
-</div>
+</div> -->
 

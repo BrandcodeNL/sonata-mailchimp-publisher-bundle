@@ -159,14 +159,10 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
             'list_id' => $list->getListId(),
         );
         
-        $from = array(
-            'from_name' => $data['from'],
-            'reply_to' => $this->batchSettingsProvider->getFrom($list)
-        );
+        $from = $this->batchSettingsProvider->getFrom($list);
 
-
-        $campaign =  $this->createMailchimpCampaign($recipients, $data['subject'], $templateId, $from);
-
+        $campaign =  $this->createMailchimpCampaign($recipients, $data['subject'], $templateId, $from, $data['preview']);
+   
         $campaignId = isset($campaign['id']) ? $campaign['id'] : null;
       
         if ($campaignId) {
@@ -206,7 +202,7 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
     }
 
 
-    private function createMailchimpCampaign($recipients, $subject, $template, $from)
+    private function createMailchimpCampaign($recipients, $subject, $template, $from, $preview = "")
     {       
      
         $result = $this->mailchimp->post(
@@ -222,7 +218,9 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
                             'template_id' => $template,
                         ),
                         $from
-                    )
+                    ),
+                'preview_text' => $preview
+                
             )
         );
         
