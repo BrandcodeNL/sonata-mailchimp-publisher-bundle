@@ -197,7 +197,7 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
             $recipients['segment_opts'] = $segment;
         }
         
-        return $this->createMailchimpCampaign($recipients, $this->settingsProvider->getSubject(), $this->settingsProvider->getTemplateId(), $this->settingsProvider->getFrom());
+        return $this->createMailchimpCampaign($recipients, $this->settingsProvider->getSubject(), $this->settingsProvider->getTemplateId(), $this->settingsProvider->getFrom(), $this->settingsProvider->getPreview());
 
     }
 

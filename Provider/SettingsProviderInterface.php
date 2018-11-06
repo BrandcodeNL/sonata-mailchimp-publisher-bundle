@@ -29,6 +29,11 @@ interface SettingsProviderInterface
     public function getSubject();
 
     /**
+     * Get the preview for the campaign
+     */
+    public function getPreview();
+
+    /**
      * Get the from name and email for the campaign
      */
     public function getFrom();

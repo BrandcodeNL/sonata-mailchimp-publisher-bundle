@@ -50,6 +50,15 @@ class SettingsProvider implements SettingsProviderInterface
 
     /**
      * {@inheritdoc}
+     * Gets the default preview text
+     */
+    public function getPreview()
+    {
+        return "";
+    }
+
+    /**
+     * {@inheritdoc}
      * Return the from email and name from the config
      */
     public function getFrom()
