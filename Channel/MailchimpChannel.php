@@ -160,6 +160,11 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
         );
         
         $from = $this->batchSettingsProvider->getFrom($list);
+        //retrieve posible segment from list provider
+        $segment = $this->batchListProvider->getSegments($list, $objects);
+        if (!empty($segment)) {
+            $recipients['segment_opts'] = $segment;
+        }
 
         $campaign =  $this->createMailchimpCampaign($recipients, $data['subject'], $templateId, $from, $data['preview']);
    
