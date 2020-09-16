@@ -5,7 +5,10 @@
  */
 namespace BrandcodeNL\SonataMailchimpPublisherBundle\Channel;
 
+use BrandcodeNL\SonataMailchimpPublisherBundle\Event\MailchimpCampaignEvent;
+use BrandcodeNL\SonataMailchimpPublisherBundle\Event\MailchimpCampaignEvents;
 use DrewM\MailChimp\MailChimp;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use BrandcodeNL\SonataPublisherBundle\Entity\PublishResponce;
 use BrandcodeNL\SonataPublisherBundle\Channel\ChannelInterface;
@@ -23,7 +26,7 @@ use BrandcodeNL\SonataMailchimpPublisherBundle\Provider\BatchSettingsProviderInt
  */
 class MailchimpChannel implements ChannelInterface, BatchChannelInterface
 {
-        
+
     /**
      * MailChimp Object
      * @var MailChimp
@@ -63,6 +66,7 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
     protected $requestStack;
 
     protected $contentProvider;
+    protected $dispatcher;
 
     /**
      * @param MailChimp $mailchimp
@@ -72,10 +76,11 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
             ListProviderInterface $listProvider,
             BatchListProviderInterface $batchListProvider,
             SettingsProviderInterface $settingsProvider,
-            BatchSettingsProviderInterface $batchSettingsProvider,           
+            BatchSettingsProviderInterface $batchSettingsProvider,
             FormatterInterface $formatter,
             ContentProviderInterface $contentProvider,
-            RequestStack $requestStack
+            RequestStack $requestStack,
+            EventDispatcherInterface $dispatcher
     ) {
         $this->mailchimp = $mailchimp;
         $this->listProvider = $listProvider;
@@ -85,6 +90,7 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
         $this->formatter = $formatter;
         $this->contentProvider = $contentProvider;
         $this->requestStack = $requestStack;
+        $this->dispatcher = $dispatcher;
     }
 
 
@@ -112,8 +118,8 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
      * TODO better error handling
      */
     public function publish($object)
-    {   
-       
+    {
+
         $this->settingsProvider->setObject($object);
         $results = array();
         //Loop through all the lists provided by the list provider
@@ -122,6 +128,7 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
                 $this->reinitializeMailchimp($list->getApiKey());
             }
             $campaign = $this->createCampaign($list, $object);
+
             $campaignId = isset($campaign['id']) ? $campaign['id'] : null;
 
             if ($campaignId) {
@@ -135,18 +142,18 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
                 $results = $campaign;
             }
         }
-        
+
         return $this->generateSuccessResponce($results);
     }
 
     public function publishBatch($objects)
     {
-      
-        $this->batchSettingsProvider->setObjects($objects); 
+
+        $this->batchSettingsProvider->setObjects($objects);
 
         $data = $this->requestStack->getCurrentRequest()->get('mailchimp');
-        
-        $list = $this->batchListProvider->getListById($data['list']);        
+
+        $list = $this->batchListProvider->getListById($data['list']);
 
         if (!empty($list->getApiKey())) {
             $this->reinitializeMailchimp($list->getApiKey());
@@ -154,11 +161,11 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
 
         $this->settingsProvider->setList($list);
         $templateId = $this->settingsProvider->getTemplateId();
-         
+
         $recipients = array(
             'list_id' => $list->getListId(),
         );
-        
+
         $from = $this->batchSettingsProvider->getFrom($list);
         //retrieve posible segment from list provider
         $segment = $this->batchListProvider->getSegments($list, $objects);
@@ -167,12 +174,11 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
         }
 
         $campaign =  $this->createMailchimpCampaign($recipients, $data['subject'], $templateId, $from, $data['preview']);
-   
         $campaignId = isset($campaign['id']) ? $campaign['id'] : null;
-      
+
         if ($campaignId) {
             $campaignResult = $this->insertContentInCampaign($campaignId, $list, $objects, $templateId);
-            
+
             $results[] = array_merge($campaign, $campaignResult);
         } else {
             $results = $campaign;
@@ -191,7 +197,7 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
         }
 
         $this->settingsProvider->setList($list);
-        
+
         $recipients = array(
             'list_id' => $list->getListId(),
         );
@@ -201,17 +207,17 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
         if (!empty($segment)) {
             $recipients['segment_opts'] = $segment;
         }
-        
+
         return $this->createMailchimpCampaign($recipients, $this->settingsProvider->getSubject(), $this->settingsProvider->getTemplateId(), $this->settingsProvider->getFrom(), $this->settingsProvider->getPreview());
 
     }
 
 
     private function createMailchimpCampaign($recipients, $subject, $template, $from, $preview = "")
-    {       
-     
+    {
+
         $result = $this->mailchimp->post(
-       
+
             "campaigns",
             array(
                 "recipients" => $recipients,
@@ -223,11 +229,11 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
                             'template_id' => $template,
                             'preview_text' => $preview
                         ),
-                        $from                       
+                        $from
                     ),
             )
         );
-        
+
         return $result;
     }
 
@@ -239,18 +245,18 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
     protected function insertContentInCampaign($campaignId, $list, $objects, $templateId)
     {
         $content = $this->contentProvider->provideContent($list, $objects);
-       
+
         //proceed with adding content
         $result = $this->mailchimp->put(
              "campaigns/{$campaignId}/content",
             array(
                 "template" => array(
                     'id' => $templateId,
-                    'sections' => $content  
+                    'sections' => $content
                 )
             )
         );
-        
+
         if (!empty($result['errors'])) {
             //handle errors ?
             throw new \Exception(json_encode($result['errors']));
@@ -258,7 +264,7 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
 
         return $result;
     }
-   
+
 
     /**
      * Schedule a campaign
@@ -269,7 +275,7 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
         //convert to UTC
         $datetime->setTimezone(new \DateTimeZone("UTC"));
         $result = $this->mailchimp->post(
-       
+
             "campaigns/{$campaignId}/actions/schedule",
             array(
                 "schedule_time" => $datetime->format('Y-m-d H:i:s e')
@@ -287,10 +293,11 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
         if (!empty($result['errors'])) {
             return  new PublishResponce("error", count($result), $result['errors'], strval($this));
         }
-
+        $mailchimpCampaignEvent = new MailchimpCampaignEvent($result);
+        $this->dispatcher->dispatch(MailchimpCampaignEvents::CAMPAIGN_CREATED, $mailchimpCampaignEvent);
         return  new PublishResponce("success", count($result), $result, strval($this));
     }
-    
+
     public function __toString()
     {
         return "sonata.publish.mailchimp";
