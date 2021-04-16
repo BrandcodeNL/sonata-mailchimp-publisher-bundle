@@ -7,6 +7,7 @@ namespace BrandcodeNL\SonataMailchimpPublisherBundle\Channel;
 
 use BrandcodeNL\SonataMailchimpPublisherBundle\Event\MailchimpCampaignEvent;
 use BrandcodeNL\SonataMailchimpPublisherBundle\Event\MailchimpCampaignEvents;
+use BrandcodeNL\SonataMailchimpPublisherBundle\Exception\ContentException;
 use DrewM\MailChimp\MailChimp;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -132,7 +133,11 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
             $campaignId = isset($campaign['id']) ? $campaign['id'] : null;
 
             if ($campaignId) {
-                $campaignResult = $this->insertContentInCampaign($campaignId, $list, array($object), $this->settingsProvider->getTemplateId());
+                try {
+                    $campaignResult = $this->insertContentInCampaign($campaignId, $list, array($object), $this->settingsProvider->getTemplateId());
+                } catch (ContentException $exception) {
+                    return $this->generateErrorResponce(['errors' => $exception->getMessage()]);
+                }
                 if (!isset($campaignResult['errors']) &&  $this->settingsProvider->getScheduleDateTime() != null) {
                     //schedule campaign if date is provided by the settingsProvider
                     $this->scheduleCampaign($campaignId, $this->settingsProvider->getScheduleDateTime());
@@ -177,7 +182,11 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
         $campaignId = isset($campaign['id']) ? $campaign['id'] : null;
 
         if ($campaignId) {
-            $campaignResult = $this->insertContentInCampaign($campaignId, $list, $objects, $templateId);
+            try {
+                $campaignResult = $this->insertContentInCampaign($campaignId, $list, $objects, $templateId);
+            } catch (ContentException $exception) {
+                return $this->generateErrorResponce(['errors' => $exception->getMessage()]);
+            }
 
             $results[] = array_merge($campaign, $campaignResult);
         } else {
@@ -296,6 +305,11 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
         $mailchimpCampaignEvent = new MailchimpCampaignEvent($result);
         $this->dispatcher->dispatch(MailchimpCampaignEvents::CAMPAIGN_CREATED, $mailchimpCampaignEvent);
         return  new PublishResponce("success", count($result), $result, strval($this));
+    }
+
+    public function generateErrorResponce($result)
+    {
+        return  new PublishResponce("error", count($result), $result['errors'], strval($this));
     }
 
     public function __toString()
