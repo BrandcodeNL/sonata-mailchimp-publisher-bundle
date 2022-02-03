@@ -13,10 +13,10 @@ use BrandcodeNL\SonataMailchimpPublisherBundle\Model\ListInterface;
  */
 class ListProvider implements ListProviderInterface
 {
-   
+
     /**
      * Return the lists for publishing from the configuration file
-     * @param $object object that gets published 
+     * @param $object object that gets published
      * @return Array<MailchimpList>
      * TODO Read configuration file for list(s) to publish
      */
@@ -31,7 +31,7 @@ class ListProvider implements ListProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function getSegment(ListInterface $list, $object)
+    public function getSegments(ListInterface $list, $object)
     {
         return null;
     }

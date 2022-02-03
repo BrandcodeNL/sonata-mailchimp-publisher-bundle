@@ -120,7 +120,6 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
      */
     public function publish($object)
     {
-
         $this->settingsProvider->setObject($object);
         $results = array();
         //Loop through all the lists provided by the list provider
@@ -128,27 +127,31 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
             if (!empty($list->getApiKey())) {
                 $this->reinitializeMailchimp($list->getApiKey());
             }
-            $campaign = $this->createCampaign($list, $object);
+            $campaigns = $this->createCampaigns($list, $object);
+            // for loop
 
-            $campaignId = isset($campaign['id']) ? $campaign['id'] : null;
+            foreach ($campaigns as $campaign) {
+                $campaignId = isset($campaign['id']) ? $campaign['id'] : null;
 
-            if ($campaignId) {
-                try {
-                    $campaignResult = $this->insertContentInCampaign($campaignId, $list, array($object), $this->settingsProvider->getTemplateId());
-                } catch (ContentException $exception) {
-                    return $this->generateErrorResponce(['errors' => $exception->getMessage()]);
+                if ($campaignId) {
+                    try {
+                        $campaignResult = $this->insertContentInCampaign($campaignId, $list, array($object), $this->settingsProvider->getTemplateId());
+                    } catch (ContentException $exception) {
+                        return $this->generateErrorResponce(['errors' => $exception->getMessage()]);
+                    }
+                    if (!isset($campaignResult['errors']) && $this->settingsProvider->getScheduleDateTime() != null) {
+                        //schedule campaign if date is provided by the settingsProvider
+                        $this->scheduleCampaign($campaignId, $this->settingsProvider->getScheduleDateTime());
+                    }
+                    $results[] = array_merge($campaign, $campaignResult);
+                } else {
+                    // array niet overschrijven maar toevoegen
+                    $results[] = $campaign;
                 }
-                if (!isset($campaignResult['errors']) &&  $this->settingsProvider->getScheduleDateTime() != null) {
-                    //schedule campaign if date is provided by the settingsProvider
-                    $this->scheduleCampaign($campaignId, $this->settingsProvider->getScheduleDateTime());
-                }
-                $results[] = array_merge($campaign, $campaignResult);
-            } else {
-                $results = $campaign;
             }
         }
 
-        return $this->generateSuccessResponce($results);
+        return $this->generateSuccessResponse($results);
     }
 
     public function publishBatch($objects)
@@ -178,7 +181,7 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
             $recipients['segment_opts'] = $segment;
         }
 
-        $campaign =  $this->createMailchimpCampaign($recipients, $data['subject'], $templateId, $from, $data['preview']);
+        $campaign = $this->createMailchimpCampaign($recipients, $data['subject'], $templateId, $from, $data['preview']);
         $campaignId = isset($campaign['id']) ? $campaign['id'] : null;
 
         if ($campaignId) {
@@ -193,13 +196,13 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
             $results = $campaign;
         }
 
-        return $this->generateSuccessResponce($results);
+        return $this->generateSuccessResponse($results);
     }
 
     /**
      * Create a new campaign
      */
-    protected function createCampaign($list, $object)
+    protected function createCampaigns($list, $object)
     {
         if (!$list instanceof ListInterface) {
             throw new \Exception(get_class($list)." is not an instance of ".ListInterface::class);
@@ -210,15 +213,16 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
         $recipients = array(
             'list_id' => $list->getListId(),
         );
-
-        //retrieve posible segment from list provider
-        $segment = $this->listProvider->getSegment($list, $object);
-        if (!empty($segment)) {
-            $recipients['segment_opts'] = $segment;
+        $segments = $this->listProvider->getSegments($list, $object);
+        if (empty($segments)) {
+            return [$this->createMailchimpCampaign($recipients, $this->settingsProvider->getSubject(), $this->settingsProvider->getTemplateId(), $this->settingsProvider->getFrom(), $this->settingsProvider->getPreview())];
         }
 
-        return $this->createMailchimpCampaign($recipients, $this->settingsProvider->getSubject(), $this->settingsProvider->getTemplateId(), $this->settingsProvider->getFrom(), $this->settingsProvider->getPreview());
+        return array_map(function ($segment) use ($recipients) {
+            $segmentedRecipients = array_merge($recipients, ['segment_opts' => $segment]);
+            return $this->createMailchimpCampaign($segmentedRecipients, $this->settingsProvider->getSubject(), $this->settingsProvider->getTemplateId(), $this->settingsProvider->getFrom(), $this->settingsProvider->getPreview());
 
+        }, $segments);
     }
 
 
@@ -297,23 +301,27 @@ class MailchimpChannel implements ChannelInterface, BatchChannelInterface
         $this->mailchimp = new Mailchimp($apiKey);
     }
 
-    public function generateSuccessResponce($result)
+    public function generateSuccessResponse($result)
     {
         if (!empty($result['errors'])) {
-            return  new PublishResponce("error", count($result), $result['errors'], strval($this));
+            return new PublishResponce("error", count($result), $result['errors'], strval($this));
         }
         $mailchimpCampaignEvent = new MailchimpCampaignEvent($result);
         $this->dispatcher->dispatch(MailchimpCampaignEvents::CAMPAIGN_CREATED, $mailchimpCampaignEvent);
-        return  new PublishResponce("success", count($result), $result, strval($this));
+        return new PublishResponce("success", count($result), $result, strval($this));
     }
 
     public function generateErrorResponce($result)
     {
-        return  new PublishResponce("error", count($result), $result['errors'], strval($this));
+        return new PublishResponce("error", count($result), $result['errors'], strval($this));
     }
 
     public function __toString()
     {
         return "sonata.publish.mailchimp";
+    }
+
+    function array_is_associative(array $array) {
+        return count(array_filter(array_keys($array), 'is_string')) > 0;
     }
 }

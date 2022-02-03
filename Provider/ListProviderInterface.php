@@ -12,17 +12,18 @@ use BrandcodeNL\SonataMailchimpPublisherBundle\Model\ListInterface;
  */
 interface ListProviderInterface
 {
-   
+
     /**
      * Return the lists for publishing
-     * @param $object object that gets published 
+     * @param $object object that gets published
      */
     public function getLists($object);
 
     /**
      * Return the segmentation for the given list
-     * @param ListInterface $list 
-     * @param $object object that gets published 
+     * @param ListInterface $list
+     * @param $object object that gets published
+     * @return array|null
      */
-    public function getSegment(ListInterface $list, $object);
+    public function getSegments(ListInterface $list, $object);
 }
